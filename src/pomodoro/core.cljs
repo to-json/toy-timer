@@ -27,9 +27,34 @@
 (defonce timer-active (atom false))
 (defonce timer-percentage (atom nil))
 
+(defn heart [done? timer-percentage]
+  [:div {:class "heartdiv"}
+   [:svg {:class "heart" :viewBox "0 0 100 100"
+          :style (if done? nil { :animation "pulse 1s ease infinite" })
+          }
+      [:defs
+        [:radialGradient {:id "grad1" :cx "50%" :cy "50%" :r "50%" :fx "50%" :fy "50%"}
+        [:stop {:class "stop1" :offset "10%" :stop-color "#F0F"}]
+         [:stop {:class "stop2" :offset "100%" :stop-color "#000" :stop-opacity "0"}]
+         ]
+       [:linearGradient {:id "grad2" :x1 "0%" :y1 "0%" :x2 "0%" :y2 "100%"}
+        [:stop {:offset (str (- timer-percentage 50) "%") :stop-color "#0F0"}]
+        [:stop {:offset (str timer-percentage "%") :stop-color "#F0F"}]]
+      ]
+      [:path {:id "heart"
+              ;; :d "M 200 350 c 0 -2 -30 0 -100 -120 c -20 -30 40 -160 100 -40 c 40 -100 120 -30 100 40 c 0 0 0 30 -100 120"
+              :d "M 50 88 l -25 -30 a 14 14 0 1 1 25 -10 a 14 14 0 1 1 25 10 l -25 30"
+              :stroke "black"
+              :stroke-width "5"
+              :stroke-linecap "round"
+              :fill "url(#grad2)"}]]])
+
 (defn wait-component []
-  [:input {:type :button :value "Start!"
-           :on-click #(reset! timer-active true)}])
+  [:div {:class "wait-component"}
+   (heart true 0)
+   [:div {:class "buttons"}
+    [:input {:class "start-button" :type :button :value "Start!"
+             :on-click #(reset! timer-active true)}]]])
 
 (defn countdown-component []
   (let [time-now #(js/Date.)
@@ -47,41 +72,18 @@
         (let [time @current-time
               ticks (int (/ (- time start-time) 1000))
               remaining (- max-time ticks)
-              percentage (reset! timer-percentage
-                                 (str (int (* 100 (/ remaining max-time)))))
-              done? (> 0 remaining)]
+              done? (> 0 remaining)
+              percentage (if done? 0 (str (int (* 100 (/ remaining max-time)))))]
         [:div
-          [:h1 "You can do it!"]
+          (heart done? percentage)
+          (if done? [:h1 "You did it!"] [:h1 "You can do it!"])
          (if done?
            [:h2 "YATTA"]
            [:h1 (str (.substr (.toISOString (doto (js/Date. nil)
                                                   (.setSeconds remaining)))
                               14 5))])
-          [:input {:type :button :value "Cancel!"
+          [:input {:class "cancel-button" :type :button :value "Cancel!"
                    :on-click #(reset! timer-active false)}]]))})))
-
-(defn heart [active timer-percentage]
-  [:div {:class "heartdiv"}
-   [:svg {:class "heart" :viewBox "0 0 100 100"
-          :style (if active { :animation "pulse 1s ease infinite" } nil)
-          }
-      [:defs
-        [:radialGradient {:id "grad1" :cx "50%" :cy "50%" :r "50%" :fx "50%" :fy "50%"}
-        [:stop {:class "stop1" :offset "10%" :stop-color "#F0F"}]
-         [:stop {:class "stop2" :offset "100%" :stop-color "#000" :stop-opacity "0"}]
-         ]
-       [:linearGradient {:id "grad2" :x1 "0%" :y1 "0%" :x2 "0%" :y2 "100%"}
-        [:stop {:offset (str (- timer-percentage 50) "%") :stop-color "#0F0"}]
-        [:stop {:offset (str timer-percentage "%") :stop-color "#F0F"}]]
-      ]
-      (println timer-percentage)
-      [:path {:id "heart"
-              ;; :d "M 200 350 c 0 -2 -30 0 -100 -120 c -20 -30 40 -160 100 -40 c 40 -100 120 -30 100 40 c 0 0 0 30 -100 120"
-              :d "M 50 88 l -25 -30 a 14 14 0 1 1 25 -10 a 14 14 0 1 1 25 10 l -25 30"
-              :stroke "black"
-              :stroke-width "5"
-              :stroke-linecap "round"
-              :fill "url(#grad2)"}]]])
 
 (defn timer-dispatch [state]
   (if @timer-active
@@ -90,7 +92,6 @@
 
 (defn basic-timer []
     [:div
-      (heart @timer-active @timer-percentage)
       (timer-dispatch @timer-active)])
 
 (reagent/render-component [basic-timer]
