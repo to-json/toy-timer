@@ -1,10 +1,12 @@
 # pomodoro
 
-FIXME: Write a one-line description of your library/project.
+a cute pomodoro timer
 
 ## Overview
 
-FIXME: Write a paragraph about the library/project and highlight its goals.
+one day i was looking for a pomo timer bc i needed one but they were
+all very *severe* and i wanted something maybe more _soft_ to be in
+my peripheral vision all day so i made something and here it is.
 
 ## Setup
 
@@ -32,8 +34,22 @@ To create a production build run:
 And open your browser in `resources/public/index.html`. You will not
 get live reloading, nor a REPL. 
 
+### Wait but which one do i care about
+
+i just use
+
+    lein figwheel
+
+because it's a toy and i want to be able to hack on it at will.
+
+### but what the christ is lein?
+
+lein is the clojure build tool. it's probably in your package manager of choice
+
+if not i can't really help you rn sorry. better docs later maybe.
+
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2017 Jason Saxon
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
